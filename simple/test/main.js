@@ -3,48 +3,48 @@ var fs = require('fs');
 var assert = require('assert');
 
 // load module under test
-eval(fs.readFileSync('logic_one.js') + '');
-eval(fs.readFileSync('logic_two.js') + '');
+eval(fs.readFileSync('validations.js') + '');
+eval(fs.readFileSync('checkForm.js') + '');
 
-describe('logic_one module', function() {
+describe('validations', function() {
 
-    describe('sum()', function() {
+    describe('isNameValid()', function() {
         var result
 
         beforeEach(function() {
-            result = sum(2, 3);
+            result = isNameValid('James');
         });
 
-        it('should sum two numbers', function() {
-            assert.equal(result, 5);
+        it('should return true', function() {
+            assert.ok(result)
         });
     });
 
-    describe('multiply()', function() {
+    describe('isPhoneNumberValid()', function() {
         var result
 
         beforeEach(function() {
-            result = multiply(2, 3);
+            result = isPhoneNumberValid('01234 567 890')
         });
 
-        it('should multiply two numbers', function() {
-            assert.equal(result, 6);
+        it('should return true', function() {
+            assert.ok(result)
         });
     });
 
 });
 
-describe('logic_two module', function() {
+describe('checkForm', function() {
 
-    describe('sum_and_multiply()', function() {
+    describe('isFormDataValid()', function() {
         var result
 
         beforeEach(function() {
-            result = sum_and_multiply(2, 3, 3)
+            result = isFormDataValid('James', '01234 567 890')
         });
 
-        it('should sum and multiply three numbers', function() {
-            assert.equal(result, 15);
+        it('should return true', function() {
+            assert.ok(result)
         });
     });
 
