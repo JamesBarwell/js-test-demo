@@ -3,55 +3,75 @@ var fs = require('fs');
 var assert = require('assert');
 var jsdom = require('jsdom');
 
-// load module under test
-var logic_one = fs.readFileSync('logic_one.js');
-var logic_two = fs.readFileSync('logic_two.js');
+// load modules under test
+var validations = fs.readFileSync('validations.js');
+var checkForm = fs.readFileSync('checkForm.js');
 var web = fs.readFileSync('web.js');
 
-describe('my web module', function() {
+describe('form module', function() {
 
-    describe('display', function() {
+    var window;
 
-        var window;
+    function getElement(id) {
+        return window.document.getElementById(id);
+    }
 
-        beforeEach(function(done) {
-            var html = fs.readFileSync(process.cwd() + '/test/fixture/index.html');
+    function setElement(id, text) {
+        getElement(id).innerHTML = text
+    }
 
-            jsdom.env({
-                html: html,
-                src: [logic_one, logic_two, web],
-                done: function (err, win) {
-                    window = win;
-                    done(err);
-                }
-            });
+    beforeEach(function(done) {
+        var html = fs.readFileSync(process.cwd() + '/test/fixture/index.html');
+
+        jsdom.env({
+            html: html,
+            src: [validations, checkForm, web],
+            done: function (err, win) {
+                window = win;
+                done(err);
+            }
+        });
+    });
+
+    describe('form is not validated', function() {
+        var result;
+
+        beforeEach(function() {
+            result = getElement('label-result').innerHTML
         });
 
-        describe('before showResult() is called', function() {
-            var result;
+        it('should say "none" in the result display', function() {
+            assert.equal(result, 'none');
+        });
+    });
 
-            beforeEach(function() {
-                resultElement = window.document.getElementById('result');
-                result = resultElement.innerHTML;
-            });
+    describe('filled in correctly and validated', function() {
+        var result;
 
-            it('should say "none" in the result display', function() {
-                assert.equal(result, 'none');
-            });
+        beforeEach(function() {
+            setElement('form-name', 'James')
+            setElement('form-phone', '01234567890')
+            window.validateForm()
+            result = getElement('label-result').innerHTML
         });
 
-        describe('when showResult() is called', function() {
-            var result;
+        it('should say "valid" in the result display', function() {
+            assert.equal(result, 'valid');
+        });
+    });
 
-            beforeEach(function() {
-                window.showResult(2, 3, 3);
-                resultElement = window.document.getElementById('result');
-                result = resultElement.innerHTML;
-            });
+    describe('filled in incorrectly and validated', function() {
+        var result;
 
-            it('should sum and multiply three numbers and display the result', function() {
-                assert.equal(result, 15);
-            });
+        beforeEach(function() {
+            setElement('form-name', 'Foo#213')
+            setElement('form-phone', 'abc')
+            window.validateForm()
+            result = getElement('label-result').innerHTML
+        });
+
+        it('should say "invalid" in the result display', function() {
+            assert.equal(result, 'invalid');
         });
     });
 
